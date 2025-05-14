@@ -11,7 +11,7 @@ More detaile ar available here: https://hss-opus.ub.ruhr-uni-bochum.de/opus4/fro
 High-resolution anatomical images for EPI-distortion correction were obtained via a T1-weighted MPRAGE sequence with following parameters: repetition time (TR) = 8.2 ms, echo time (TE) = 3.8 ms, voxel size = 1 × 1 × 1 mm³, field of view (FOV) = 240 × 240 × 220 mm³, flip angle = 90°. Task-based functional data were collected using a T2*-weighted single-shot EPI sequence (TR = 2 s, TE = 24 ms, voxel size = 2 × 2 × 3 mm³, FOV = 224 × 224 × 125 mm³, flip angle = 80°, 38 transverse slices, slice thickness = 3 mm, inter-slice gap = 0.3 mm, multiband acceleration factor = 2). rs-fMRI data were acquired pre- and post-training on Day 1, and pre- and post-test on Day 2, using an EPI sequence (TR = 2.5 s, TE = 35 ms, flip angle = 90°, 39 slices, no gap, FOV = 224 × 224 × 117 mm³, voxel size = 2 × 2 × 3 mm³). 
 
 # fMRI Data Preprocessing Peipline
- All  neuroimaging data (task-based and resting-state) were processed using a suite of tools, including FMRIB Software Library (FSL, v6.0.5.1), Analysis of Functional NeuroImages (AFNI, v20.0.09), Advanced Normalization Tools (ANTs), and FreeSurfer (v7.1.1, Harvard University, Boston, MA, USA). 
+ All  neuroimaging data (task-based and resting-state) were processed using a suite of tools, including FMRIB Software Library (FSL, v6.0.5.1, https://fsl.fmrib.ox.ac.uk/fsl/docs/#/), Analysis of Functional NeuroImages (AFNI, v20.0.09, https://afni.nimh.nih.gov/), Advanced Normalization Tools (ANTs, https://github.com/ANTsX/ANTs), and FreeSurfer (v7.1.1, Harvard University, Boston, MA, USA, https://surfer.nmr.mgh.harvard.edu/). 
 
 # fMRI Preprocessing Pipeline
 
@@ -22,35 +22,26 @@ This guide outlines the preprocessing steps for task-based and resting-state fMR
 1. **Convert DICOM to NIfTI**
    - **Function**: `dcm2niix`
    - Convert raw DICOM files to NIfTI format for compatibility with neuroimaging tools.
-     
 2. **Assess Data Quality (Framewise Displacement)**
    - **Function**: `fsl_motion_outliers` (FSL)
    - Calculate framewise displacement (FD) from rigid-body realignment estimates to identify motion-affected volumes.
-   - Note: Participants with excessive motion (FD > 0.9 mm) are listed in Table 1 and excluded. Affected volumes are modeled as confound regressors in GLM analysis.
-
 3. **Skull-Strip Anatomical Images**
    - **Function**: `recon-all` (FreeSurfer)
    - Remove skull and non-brain tissue from anatomical (T1) images.
-
 4. **Motion Correction**
    - **Function**: `MCFLIRT` (FSL)
    - Correct motion-related artifacts in fMRI time series by aligning volumes to a reference.
-
 5. **Remove Non-Brain Tissue from fMRI**
    - **Function**: Manual or BET (FSL)
    - Remove non-brain tissue from fMRI data to focus on brain signals.
-
 6. **Spatial Smoothing**
    - **Function**: `3dBlurInMask` (AFNI)
    - Apply a 5 mm FWHM Gaussian filter to smooth fMRI data within a brain mask.
-
 7. **Global Intensity Normalization**
    - Normalize global intensity to a grand mean of 10,000 across sessions for group analysis.
-
 8. **Clean Motion Artifacts**
    - **Function**: `ICA-AROMA` (version 0.3beta) https://github.com/maartenmennes/ICA-AROMA
    - Remove in-scanner head motion artifacts using independent component analysis.
-
 9. **Temporal High-Pass Filtering**
    - **Function**: `3dTproject` (AFNI)
    - Apply high-pass filtering (>0.01 Hz) to remove low-frequency noise post-ICA-AROMA.
@@ -58,15 +49,12 @@ This guide outlines the preprocessing steps for task-based and resting-state fMR
 10. **Discard Non-Steady-State Volumes**
     - **Function**:  `fslroi`
     - Remove the first and last five volumes to ensure steady-state data and minimize filtering artifacts.
-
 11. **Register EPI to Structural**
     - **Function**: `epi_reg` (FSL, BBR)
     - Register EPI (fMRI) images to high-resolution structural (MPRAGE) images using boundary-based registration.
-
 12. **Register Structural to MNI Template**
     - **Function**: `antsRegistrationSyN.sh` (ANTs)
     - Register structural images to the MNI152_T1_2mm template using nonlinear Symmetric Normalization (SyN).
-
 13. **Concatenate Transformations**
     - **Function**: `antsApplyTransforms` (ANTs)
     - Combine BBR and SyN transformations to warp fMRI data to MNI space.
@@ -75,66 +63,36 @@ This guide outlines the preprocessing steps for task-based and resting-state fMR
 The resting-state fMRI preprocessing follows the task-based pipeline (Steps 1–13) with the following additional or modified steps:
 
 1. **Convert DICOM to NIfTI**
-   - Same as task-based (see above).
-
 2. **Assess Data Quality (Framewise Displacement)**
-   - Same as task-based (see above).
-
 3. **Skull-Strip Anatomical Images**
-   - Same as task-based (see above).
-
 4. **Motion Correction**
-   - Same as task-based (see above).
-
 5. **Slice-Timing Correction**
    - **Function**: `slicetimer` (FSL)
    - Correct for interleaved ascending acquisition timing, using the middle slice as reference.
-   - 
 6. **Remove Non-Brain Tissue from fMRI**
-   - Same as task-based (see above).
-
 7. **Spatial Smoothing**
-   - Same as task-based (see above).
-
 8. **Global Intensity Normalization**
-   - Same as task-based (see above).
-
 9. **Clean Motion Artifacts**
-   - Same as task-based (see above).
-
 10. **Segment Structural Images**
     - **Function**: `fast` (FSL)
     - Segment structural images into grey matter, white matter (WM), and cerebrospinal fluid (CSF) masks.
-
 11. **Binarize WM and CSF Masks**
     - **Function**: `fslmaths` (FSL)
     - Binarize WM and CSF masks at a 0.95 threshold to prevent overlap.
-
 12. **Regress Nuisance Signals**
     - **Function**: `fslregfilt` (FSL)
     - Regress mean WM, CSF, and global signals from each voxel’s time series.
-
 13. **Temporal Bandpass Filtering**
-    - **Function**: `fslmaths` or FSL’s `fsl_glm`
+    - **Function**: `3dTproject` (AFNI)
     - Apply bandpass filtering (0.01–0.1 Hz) to isolate resting-state frequencies.
-
 14. **Discard Non-Steady-State Volumes**
-    - Same as task-based (see above).
-
 15. **Register EPI to Structural**
-    - Same as task-based (see above).
-
 16. **Register Structural to MNI Template**
-    - Same as task-based (see above).
-
 17. **Concatenate Transformations**
-    - Same as task-based (see above).
 
 ## Notes
-- **Dataset**: The pipeline processes data from the similarity rating task, available on Mendeley ([https://data.mendeley.com/datasets/8k7ys2xw4h/1](https://data.mendeley.com/datasets/8k7ys2xw4h/1)) and OpenNeuro (please provide the correct link).
+- **Dataset**: (please provide the correct link).
 - **Motion Exclusion**: Participants listed in Table 1 were excluded due to excessive motion (FD > 0.9 mm).
 - **Multiband Data**: Slice-timing correction was skipped for task-based fMRI due to multiband acquisition.
 - **Dependencies**: Ensure FSL, AFNI, FreeSurfer, ANTs, and ICA-AROMA (version 0.3beta) are installed.
-- **References**: MCFLIRT (Jenkinson et al., 2002). Additional citations for BBR and other tools should be included as needed.
-- **Scripts**: Preprocessing scripts are available at [https://github.com/Sepideh-Tabrik/Similarity-Rating-Task](https://github.com/Sepideh-Tabrik/Similarity-Rating-Task) (neuroimaging processing code link pending).
 
