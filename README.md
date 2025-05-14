@@ -3,6 +3,7 @@ Humans use visual and tactile sensory systems interchangeably for object recogni
 
 # Experiment Design
 A task-based fMRI experiment studied 84 naïve participants divided into four groups—two cross-modal (Visual-Tactile, Tactile-Visual) and two unimodal (Visual-Visual, Tactile-Tactile)—to investigate visual and tactile categorization. On Day 1, participants underwent category learning training outside the scanner (visual: ~60 min in Virtual Reality; tactile: ~75 min with 3D-printed objects), achieving 85% accuracy. On Day 2, testing occurred inside a 3T MRI scanner, with visual stimuli presented as 4-second rotating object videos and tactile stimuli explored via wrist/finger movements, each involving five 32-trial runs. Training used 8 primed objects (4 per category), while testing included all 16 objects (primed and non-primed) to assess categorical knowledge transfer. In addition, resting-state data were recorded at 4 time points: pre- and post-training, pre- and post-test sesions.
+
 More detaile ar available here: https://hss-opus.ub.ruhr-uni-bochum.de/opus4/frontdoor/deliver/index/docId/9089/file/diss.pdf 
 ![image](https://github.com/user-attachments/assets/87e7adf3-8ded-466e-a3d0-4b3740604e77)
 
