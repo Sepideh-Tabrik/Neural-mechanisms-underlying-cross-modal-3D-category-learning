@@ -23,6 +23,7 @@ This guide outlines the preprocessing steps for task-based and resting-state fMR
 1. **Convert DICOM to NIfTI**
    - **Function**: `dcm2niix`
    - Convert raw DICOM files to NIfTI format for compatibility with neuroimaging tools.
+   - dcm2niix -f Output_Name -o Output_Directory -z y Dicome_Directory
 2. **Assess Data Quality (Framewise Displacement)**
    - **Function**: `fsl_motion_outliers` (FSL)
    - Calculate framewise displacement (FD) from rigid-body realignment estimates to identify motion-affected volumes.
@@ -46,7 +47,6 @@ This guide outlines the preprocessing steps for task-based and resting-state fMR
 9. **Temporal High-Pass Filtering**
    - **Function**: `3dTproject` (AFNI)
    - Apply high-pass filtering (>0.01 Hz) to remove low-frequency noise post-ICA-AROMA.
-
 10. **Discard Non-Steady-State Volumes**
     - **Function**:  `fslroi`
     - Remove the first and last five volumes to ensure steady-state data and minimize filtering artifacts.
